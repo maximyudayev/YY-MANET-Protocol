@@ -1,0 +1,12 @@
+# ignore MAT-files in root directory used for easy work
+/*.mat
+
+# ignore any zip archives
+*.zip
+
+# ignore auxilary files used for intermediate reporting
+*.pdf
+
+# ignore datasets
+/shapefiles/
+/vehicle_mobility/
