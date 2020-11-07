@@ -6,6 +6,7 @@
 
 # ignore auxilary files used for intermediate reporting
 *.pdf
+*.log
 
 # ignore datasets
 /shapefiles/
