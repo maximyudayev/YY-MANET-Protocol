@@ -3,10 +3,10 @@
 
 # ignore auxilary files used for intermediate reporting
 *.pdf
+*.odt
 
 # ignore directories
 presentations
 data
-matlab
 dask-worker-space
 .ipynb_checkpoints
