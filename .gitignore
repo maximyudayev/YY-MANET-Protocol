@@ -1,12 +1,15 @@
-# ignore any zip archives
+# Ignore any zip archives
 *.zip
 
-# ignore auxilary files used for intermediate reporting
+# Ignore auxilary files used for intermediate reporting
 *.pdf
 *.odt
 
-# ignore directories
+# Ignore directories
 presentations
-data
+data/*
 dask-worker-space
 .ipynb_checkpoints
+
+# Except R-tree index files
+!data/roads.*
