@@ -1,39 +1,53 @@
-#!/usr/bin/env bash
+#!/bin/bash -l
 #PBS -A default_project
 #PBS -l nodes=1:ppn=18
 #PBS -l pmem=2gb
 #PBS -l walltime=10:00
 #PBS -l qos=debugging
-#PBS -m bea
-#PBS -M "maxim.yudayev@student.kuleuven.be"
+#PBS -o debug/
+#PBS -e debug/
+#PBS -m bae
+#PBS -M maxim.yudayev@student.kuleuven.be
 
 #1 node, 18 processes, 36GB memory, 10 minute non-interactive debug job with email notifications
-
-#Load Python3.7
-module purge
-module load Python/3.7.2-foss-2018a
-
-#Activate Conda environment with the preinstalled packages
-source activate master_thesis
 
 #Change directory to location from which task was submitted to queue: $VSC_DATA/vsc
 cd $PBS_O_WORKDIR
 
+#Load Python3.7
+module purge
+#module load Python/3.7.2-foss-2018a
+
 #Collect data from cluster manager about allocated nodes
 scheduler="$(hostname):8786"
 worker_nodes=$(uniq $PBS_NODEFILE)
+worker_launcher="$(pwd)/launch_worker.sh"
 
 #Start Dask scheduler
-nohup dask-scheduler &>> "scheduler.log" &
+(>&2 echo "launching scheduler: ${scheduler}")
+./launch_scheduler.sh "${PATH}" "$(pwd)/debug"
+
+(>&2 echo 'waitling till scheduler launched...')
 sleep 15
 
 #Start Dask workers on nodes
+(>&2 echo 'starting workers...' )
 for worker in $worker_nodes;
 do
-    ssh $worker "nohup dask-worker $scheduler &" &
+    (>&2 echo "launching worker on ${worker}")
+    (>&2 ssh $worker $worker_launcher "${PATH}" "$(pwd)/debug" "${scheduler}") &
 done
+
+(>&2 echo 'waiting for workers to start and connect')
 sleep 15
 
+source activate master_thesis 2> /dev/null
+if [ $? -ne 0 ]
+then
+    (>&2 echo '### [ERR]: conda environment not sourced successfully (.pbs)')
+fi
+
+(>&2 echo 'starting computation')
 #Execute and time the graph building script, use SCRATCH partition as script argument
 time python ./network_graph_build.py $VSC_SCRATCH/data \
 					--scheduler ${scheduler}

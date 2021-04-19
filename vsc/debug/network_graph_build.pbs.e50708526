@@ -1,0 +1,77 @@
+launching scheduler: r22i13n02:8786
+waitling till scheduler launched...
+starting workers...
+launching worker on r22i13n02
+waiting for workers to start and connect
+Joining job 50708526.tier2-p-moab-2.tier2.hpc.kuleuven.be
+starting computation
+Client: <Client: 'tcp://10.118.230.66:8786' processes=1 threads=18, memory=188.58 GiB>
+/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/distributed/worker.py:3560: UserWarning: Large object of size 1.15 MiB detected in task graph: 
+  ([[[["('open_rasterio-082734f1f3624e90aa99c07eae65 ... , None)), None)
+Consider scattering large objects ahead of time
+with client.scatter to reduce scheduler burden and 
+keep data on workers
+
+    future = client.submit(func, big_data)    # bad
+
+    big_future = client.scatter(big_data)     # good
+    future = client.submit(func, big_future)  # good
+  warnings.warn(
+Traceback (most recent call last):
+  File "/vsc-hard-mounts/leuven-data/341/vsc34153/YY-MANET-Protocol/vsc/./network_graph_build.py", line 199, in <module>
+    dd.to_parquet(df2, '{0}/osm_roads/debug_nodes_edges.parquet'.format(options.dir), engine='pyarrow') # Process first 100 roads
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/dask/dataframe/io/parquet/core.py", line 669, in to_parquet
+    out = out.compute(**compute_kwargs)
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/dask/base.py", line 284, in compute
+    (result,) = compute(self, traverse=False, **kwargs)
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/dask/base.py", line 566, in compute
+    results = schedule(dsk, keys, **kwargs)
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/distributed/client.py", line 2666, in get
+    results = self.gather(packed, asynchronous=asynchronous, direct=direct)
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/distributed/client.py", line 1975, in gather
+    return self.sync(
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/distributed/client.py", line 843, in sync
+    return sync(
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/distributed/utils.py", line 353, in sync
+    raise exc.with_traceback(tb)
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/distributed/utils.py", line 336, in f
+    result[0] = yield future
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/tornado/gen.py", line 762, in run
+    value = future.result()
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/distributed/client.py", line 1840, in _gather
+    raise exception.with_traceback(traceback)
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/dask/optimization.py", line 963, in __call__
+    return core.get(self.dsk, self.outkey, dict(zip(self.inkeys, args)))
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/dask/core.py", line 151, in get
+    result = _execute_task(task, cache)
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/dask/core.py", line 121, in _execute_task
+    return func(*(_execute_task(a, cache) for a in args))
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/dask/utils.py", line 34, in apply
+    return func(*args, **kwargs)
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/dask/dataframe/core.py", line 5665, in apply_and_enforce
+    df = func(*args, **kwargs)
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/dask/utils.py", line 900, in __call__
+    return getattr(obj, self.method)(*args, **kwargs)
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/pandas/core/frame.py", line 7768, in apply
+    return op.get_result()
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/pandas/core/apply.py", line 185, in get_result
+    return self.apply_standard()
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/pandas/core/apply.py", line 276, in apply_standard
+    results, res_index = self.apply_series_generator()
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/pandas/core/apply.py", line 290, in apply_series_generator
+    results[i] = self.f(v)
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/pandas/core/apply.py", line 110, in f
+    return func(x, *args, **kwds)
+  File "/vsc-hard-mounts/leuven-data/341/vsc34153/YY-MANET-Protocol/vsc/./network_graph_build.py", line 151, in foo
+    fids = get_neighbors(index, row)
+  File "/vsc-hard-mounts/leuven-data/341/vsc34153/YY-MANET-Protocol/vsc/./network_graph_build.py", line 16, in get_neighbors
+    return [int(i) for i in index.intersection(wkb.loads(row.bbox).bounds) if int(i) != row.Index]
+  File "/vsc-hard-mounts/leuven-data/341/vsc34153/YY-MANET-Protocol/vsc/./network_graph_build.py", line 16, in <listcomp>
+    return [int(i) for i in index.intersection(wkb.loads(row.bbox).bounds) if int(i) != row.Index]
+  File "/data/leuven/341/vsc34153/miniconda3/envs/master_thesis/lib/python3.9/site-packages/pandas/core/generic.py", line 5465, in __getattr__
+    return object.__getattribute__(self, name)
+AttributeError: 'Series' object has no attribute 'Index'
+
+real	0m37.162s
+user	0m2.331s
+sys	0m1.402s
