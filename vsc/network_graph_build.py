@@ -7,6 +7,7 @@ import xarray as xr
 from shapely.geometry import LineString, Polygon, Point, box
 from shapely import wkb
 import rtree
+import pyarrow as pa
 import networkx as nx
 import sys
 
@@ -187,12 +188,42 @@ if __name__ == '__main__':
     dem = xr.open_rasterio(dem_url, chunks={'band':1, 'x': 3500, 'y': 4000})
 
     # df[['nodes','edges']] = df.apply( # Process full set
-    df2 = df.loc[4217292:4331539].apply( # Process first 100 roads
+    df2 = df.loc[4217292:4331539]
+    df2[['nodes','edges']] = df2.apply( # Process first 100 roads
         foo, 
         args=(df, dem, index_url), 
         axis=1, 
         result_type='expand', 
         meta={0:'object',1:'object'})
 
-    # dd.to_parquet(df, '{0}/osm_roads/nodes_edges.parquet'.format(options.dir), engine='pyarrow') # Process full set
-    dd.to_parquet(df2, '{0}/osm_roads/debug_nodes_edges.parquet'.format(options.dir), engine='pyarrow') # Process first 100 roads
+    schema = {
+        'osm_id': pa.int64(),
+        'code': pa.int64(),
+        'fclass': pa.string(),
+        'name': pa.string(),
+        'ref': pa.string(),
+        'oneway': pa.bool_(),
+        'maxspeed': pa.int64(),
+        'layer': pa.int64(),
+        'bridge': pa.bool_(),
+        'tunnel': pa.bool_(),
+        'geometry': pa.binary(),
+        'bbox': pa.binary(),
+        'nodes': pa.list_(
+            pa.struct([
+                ('0', pa.list_(pa.float64(), 2)),
+                ('1', pa.struct([
+                    ('junction', pa.list_(pa.int64())),
+                ]))])),
+        'edges': pa.list_(
+            pa.struct([
+                ('0', pa.list_(pa.float64(), 2)),
+                ('1', pa.list_(pa.float64(), 2)),
+                ('2', pa.struct([
+                    ('length', pa.float64()),
+                    ('weight', pa.float64())
+                ]))]))
+    }
+
+    # dd.to_parquet(df, '{0}/osm_roads/nodes_edges.parquet'.format(options.dir), engine='pyarrow', schema=schema) # Process full set
+    dd.to_parquet(df2, '{0}/osm_roads/debug_nodes_edges.parquet'.format(options.dir), engine='pyarrow', schema=schema) # Process first 100 roads
