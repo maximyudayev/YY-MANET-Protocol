@@ -13,7 +13,7 @@ import sys
 
 def get_neighbors(index, row):
     # Query R-Tree by the bounding box of road 'x' for neighbors except itself
-    return [int(i) for i in index.intersection(wkb.loads(row.bbox).bounds) if int(i) != row.Index]
+    return [int(i) for i in index.intersection(wkb.loads(row.bbox).bounds) if int(i) != row.name]
 
 
 def find_intersections(neighbors, row):
@@ -27,14 +27,14 @@ def find_intersections(neighbors, row):
         if not (entry.bridge or entry.tunnel) and a.intersects(b): # Check if road with 'fid' osm_id actually intersects road 'x'
             pts = a.intersection(b)
             if pts.type == 'MultiPoint':
-                (nodes.append((pt.coords[:][0], {'junction':[row.Index, entry.Index]})) for pt in pts)
+                (nodes.append((pt.coords[:][0], {'junction':[row.name, entry.Index]})) for pt in pts)
                 (intersections.append(pt) for pt in pts if pt.coords[:][0] != road[0] and pt.coords[:][0] != road[-1] and (pt.coords[:][0] not in intersections))
             elif pts.type == 'Point':
-                nodes.append((pts.coords[:][0], {'junction':[row.Index, entry.Index]}))
+                nodes.append((pts.coords[:][0], {'junction':[row.name, entry.Index]}))
                 if pts.coords[:][0] != road[0] and pts.coords[:][0] != road[-1] and (pts.coords[:][0] not in intersections):
                     intersections.append(pts)
     
-    [nodes.append((pt, {'junction':[row.Index]})) for pt in [road[0], road[-1]] if not nodes or pt not in tuple(zip(*nodes))[0]]
+    [nodes.append((pt, {'junction':[row.name]})) for pt in [road[0], road[-1]] if not nodes or pt not in tuple(zip(*nodes))[0]]
 
     return nodes, intersections
 
@@ -42,7 +42,7 @@ def find_intersections(neighbors, row):
 def get_elevation(nodes, a, dem):
     b = [pt[0] for pt in nodes] # List coordinates of graph nodes (permits duplication)
     
-    data = dem[tuple([[0]]+list(map(list,zip(*((round((pt[0]-dem.transform[2])/dem.transform[0]), round((pt[1]-dem.transform[5])/dem.transform[4])) for pt in a+b)))))].data[0].compute() # Retrieve elevations for road points and graph nodes
+    data = dem[tuple([[0]]+list(map(list,zip(*((round((pt[0]-dem.transform[2])/dem.transform[0]), round((pt[1]-dem.transform[5])/dem.transform[4])) for pt in a+b)))))].data[0] # Retrieve elevations for road points and graph nodes
     
     road_elevations = [data[i][i] for i in range(len(a))] # The first 'a' elements correspond to road points
     
@@ -154,7 +154,7 @@ def foo(row, df, dem, index_url):
         fids = [] 
 
     # Retreive those roads from the dataset by indexing
-    neighbors = df.loc[fids].compute()
+    neighbors = df.loc[fids]
 
     # Build up list of Graph nodes and list of intersections
     (nodes, intersections) = find_intersections(neighbors, row)
@@ -185,7 +185,6 @@ if __name__ == '__main__':
 
     df = dd.read_parquet(df_url, engine='pyarrow')
     dem = xr.open_rasterio(dem_url, chunks={'band':1, 'x': 3500, 'y': 4000})
-#    index = rtree.index.Rtree(index_url)
 
     # df[['nodes','edges']] = df.apply( # Process full set
     df2 = df.loc[4217292:4331539].apply( # Process first 100 roads
@@ -195,5 +194,5 @@ if __name__ == '__main__':
         result_type='expand', 
         meta={0:'object',1:'object'})
 
-    # dd.to_parquet(df, '{0}/osm_roads/debug_nodes_edges.parquet'.format(options.dir), engine='pyarrow') # Process full set
+    # dd.to_parquet(df, '{0}/osm_roads/nodes_edges.parquet'.format(options.dir), engine='pyarrow') # Process full set
     dd.to_parquet(df2, '{0}/osm_roads/debug_nodes_edges.parquet'.format(options.dir), engine='pyarrow') # Process first 100 roads
