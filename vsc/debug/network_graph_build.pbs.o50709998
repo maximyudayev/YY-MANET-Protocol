@@ -6,37 +6,37 @@ queue: q1h
 ========================================================================
 ========================================================================
 Epilogue args:
-Date: Mon Apr 19 23:29:44 CEST 2021
+Date: Tue Apr 20 16:59:04 CEST 2021
 Allocated nodes:
-r22i13n02
-r22i13n02
-r22i13n02
-r22i13n02
-r22i13n02
-r22i13n02
-r22i13n02
-r22i13n02
-r22i13n02
-r22i13n02
-r22i13n02
-r22i13n02
-r22i13n02
-r22i13n02
-r22i13n02
-r22i13n02
-r22i13n02
-r22i13n02
-Job ID: 50708526.tier2-p-moab-2.tier2.hpc.kuleuven.be
+r22i13n01
+r22i13n01
+r22i13n01
+r22i13n01
+r22i13n01
+r22i13n01
+r22i13n01
+r22i13n01
+r22i13n01
+r22i13n01
+r22i13n01
+r22i13n01
+r22i13n01
+r22i13n01
+r22i13n01
+r22i13n01
+r22i13n01
+r22i13n01
+Job ID: 50709998.tier2-p-moab-2.tier2.hpc.kuleuven.be
 User ID: vsc34153
 Group ID: vsc34153
 Job Name: network_graph_build.pbs
-Session ID: 22060
+Session ID: 34830
 Resource List: nodes=1:ppn=18,pmem=2gb,walltime=00:10:00,neednodes=1:ppn=18
-Resources Used: cput=00:00:41,vmem=3202960kb,walltime=00:01:25,mem=25852764kb,energy_used=0
+Resources Used: cput=00:00:44,vmem=3272904kb,walltime=00:01:14,mem=10204016kb,energy_used=0
 Queue Name: q1h
 Account String: default_project
 -------------------------------------------------------------------------
-time: 85
+time: 74
 nodes: 1
 procs: 18
 account: default_project

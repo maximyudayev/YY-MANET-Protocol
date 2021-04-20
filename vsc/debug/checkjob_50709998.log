@@ -1,0 +1,51 @@
+job 50709998 (RM job '50709998.tier2-p-moab-2.tier2.hpc.kuleuven.be')
+
+AName: network_graph_build.pbs
+State: Completed 
+Completion Code: 0  Time: Tue Apr 20 16:59:27
+Creds:  user:vsc34153  group:vsc34153  account:default_project  class:q1h  qos:debugging
+WallTime:   00:01:39 of 00:10:00
+SubmitTime: Tue Apr 20 16:57:35
+  (Time Queued  Total: 00:00:13  Eligible: 00:00:13)
+
+Job Templates: 1hour
+TemplateSets:  DEFAULT,1hour.set
+NodeMatchPolicy: EXACTNODE
+Total Requested Tasks: 18
+Total Requested Nodes: 1
+
+Req[0]  TaskCount: 18  Partition: pbs
+Memory >= 2048M  Disk >= 0  Swap >= 0
+Opsys: ---  Arch: ---  Features: genius
+Dedicated Resources Per Task: PROCS: 1  MEM: 2048M
+GMetric[energy_used]  Current: 0.00  Min: 0.00  Max: 0.00  Avg: 0.00 Total: 0.00
+Average Utilized Memory: 3123.06 MB
+Average Utilized Procs: 0.30
+NodeSet=ONEOF:FEATURE:[NONE]
+NodeAccess: SINGLEJOB
+TasksPerNode: 18  NodeCount:  1
+
+Allocated Nodes:
+[r22i13n01:18]
+Applied Nodeset: r22i13
+
+
+SystemID:   Moab
+SystemJID:  50709998
+Notification Events: JobStart,JobEnd,JobFail  Notification Address: maxim.yudayev@student.kuleuven.be
+Task Distribution: r22i13n01,r22i13n01,r22i13n01,r22i13n01,r22i13n01,r22i13n01,r22i13n01,r22i13n01,r22i13n01,r22i13n01,r22i13n01,...
+IWD:            /vsc-hard-mounts/leuven-data/341/vsc34153/YY-MANET-Protocol/vsc
+UMask:          0000 
+OutputFile:     tier2-p-login-4:/data/leuven/341/vsc34153/YY-MANET-Protocol/vsc/debug/network_graph_build.pbs.o50709998
+ErrorFile:      tier2-p-login-4:/data/leuven/341/vsc34153/YY-MANET-Protocol/vsc/debug/network_graph_build.pbs.e50709998
+StartCount:     1
+Execution Partition:  pbs
+SrcRM:          pbs  DstRM: pbs  DstRMJID: 50709998.tier2-p-moab-2.tier2.hpc.kuleuven.be
+Submit Args:    network_graph_build.pbs
+Flags:          RESTARTABLE
+Attr:           checkpoint,1hour.set
+Variables:      UsageRecord=6384548
+StartPriority:  2179
+IterationJobRank: 0
+PE:             18.00
+

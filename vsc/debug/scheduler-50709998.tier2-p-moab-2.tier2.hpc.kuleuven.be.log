@@ -1,0 +1,14 @@
+distributed.scheduler - INFO - -----------------------------------------------
+distributed.scheduler - INFO - -----------------------------------------------
+distributed.scheduler - INFO - Clear task state
+distributed.scheduler - INFO -   Scheduler at:  tcp://10.118.230.65:8786
+distributed.scheduler - INFO -   dashboard at:                     :8787
+distributed.scheduler - INFO - Register worker <Worker 'tcp://10.118.230.65:37552', name: tcp://10.118.230.65:37552, memory: 0, processing: 0>
+distributed.scheduler - INFO - Starting worker compute stream, tcp://10.118.230.65:37552
+distributed.core - INFO - Starting established connection
+distributed.scheduler - INFO - Receive client connection: Client-dfeff928-a1e8-11eb-8ae3-98f2b3e85338
+distributed.core - INFO - Starting established connection
+distributed.scheduler - INFO - Remove client Client-dfeff928-a1e8-11eb-8ae3-98f2b3e85338
+distributed.scheduler - INFO - Remove client Client-dfeff928-a1e8-11eb-8ae3-98f2b3e85338
+distributed.scheduler - INFO - Close client connection: Client-dfeff928-a1e8-11eb-8ae3-98f2b3e85338
+distributed.scheduler - INFO - End scheduler at 'tcp://10.118.230.65:8786'
