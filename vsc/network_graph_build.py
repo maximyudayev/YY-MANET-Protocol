@@ -3,6 +3,7 @@
 from argparse import ArgumentParser
 from distributed import Client, wait
 import dask.dataframe as dd
+import dask
 import xarray as xr
 from shapely.geometry import LineString, Polygon, Point, box
 from shapely import wkb
@@ -55,7 +56,7 @@ def get_elevation(nodes, a, dem):
     for i in range(len(b)):
         # The second 'b' elements correspond to graph nodes
         nodes[i][1]['altitude'] = data[len(a)+i][len(a)+i]
-
+    del data
     return nodes, road_elevations
 
 
@@ -208,6 +209,9 @@ if __name__ == '__main__':
     arg_parser.add_argument('--scheduler', help='scheduler host:port')
     options = arg_parser.parse_args()
     
+    # Change disk spill directory to SCRATCH
+    dask.config.set(temporary_directory=options.dir)
+
     client = Client(str(options.scheduler))
     print('Client: {0}'.format(str(client)), flush=True, file=sys.stderr)
     
@@ -254,8 +258,9 @@ if __name__ == '__main__':
 
     futures = []
     for fn in os.listdir(in_path):
-        a = client.submit(process, in_path + fn, df_url, index_url)
-        b = client.submit(write, a, out_path + fn, schema)
-        futures.append(b)
+        if fn not in os.listdir(out_path):
+            a = client.submit(process, in_path + fn, df_url, dem_url, index_url)
+            b = client.submit(write, a, out_path + fn, schema)
+            futures.append(b)
 
     wait(futures)

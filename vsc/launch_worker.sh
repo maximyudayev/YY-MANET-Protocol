@@ -8,5 +8,5 @@ then
     (>&2 echo '### [ERR]: conda environment not sourced correctly (worker)')
 fi
 
-nohup dask-worker $3 --memory-limit 5GB --nprocs 36 --nthreads 1 --interface ib0 --local-directory $4 &> "$2/worker-$(hostname)-${PBS_JOBID}.log" &
+nohup dask-worker $3 --memory-limit 10GB --nprocs 16 --nthreads 1 --interface ib0 --local-directory $4 &> "$2/worker-$(hostname)-${PBS_JOBID}.log" &
 

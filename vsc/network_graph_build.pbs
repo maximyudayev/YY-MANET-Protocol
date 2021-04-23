@@ -1,21 +1,18 @@
 #!/bin/bash -l
 #PBS -A default_project
-#PBS -l nodes=6:ppn=36
-#PBS -l pmem=5gb
-#PBS -l walltime=05:00:00
+#PBS -l nodes=3:ppn=16
+#PBS -l pmem=10gb
+#PBS -l walltime=02:00:00
 #PBS -o debug/
 #PBS -e debug/
 #PBS -m bae
 #PBS -M maxim.yudayev@student.kuleuven.be
 
-#6 node, 36 processes, 180GB memory, 5 hour non-interactive compute job with email notifications
+#6 node, 36 processes, 5 hour non-interactive compute job with email notifications
 
 #Change directory to location from which task was submitted to queue: $VSC_DATA/vsc
 cd $PBS_O_WORKDIR
-
-#Load Python3.7
 module purge
-#module load Python/3.7.2-foss-2018a
 
 #Collect data from cluster manager about allocated nodes
 scheduler="$(hostname):8786"
@@ -52,5 +49,5 @@ fi
 
 (>&2 echo 'starting computation')
 #Execute and time the graph building script, use SCRATCH partition as script argument
-time python ./network_graph_build_no_dem.py $VSC_SCRATCH/data \
+time python ./network_graph_build.py $VSC_SCRATCH/data \
 					--scheduler ${scheduler}
