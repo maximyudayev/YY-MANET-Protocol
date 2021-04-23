@@ -1,15 +1,14 @@
 #!/bin/bash -l
 #PBS -A default_project
-#PBS -l nodes=1:ppn=18
-#PBS -l pmem=2gb
-#PBS -l walltime=10:00
-#PBS -l qos=debugging
+#PBS -l nodes=6:ppn=36
+#PBS -l pmem=5gb
+#PBS -l walltime=05:00:00
 #PBS -o debug/
 #PBS -e debug/
 #PBS -m bae
 #PBS -M maxim.yudayev@student.kuleuven.be
 
-#1 node, 18 processes, 36GB memory, 10 minute non-interactive debug job with email notifications
+#6 node, 36 processes, 180GB memory, 5 hour non-interactive compute job with email notifications
 
 #Change directory to location from which task was submitted to queue: $VSC_DATA/vsc
 cd $PBS_O_WORKDIR
@@ -25,7 +24,8 @@ worker_launcher="$(pwd)/launch_worker.sh"
 
 #Start Dask scheduler
 (>&2 echo "launching scheduler: ${scheduler}")
-./launch_scheduler.sh "${PATH}" "$(pwd)/debug"
+./launch_scheduler.sh "${PATH}" \
+			"$(pwd)/debug"
 
 (>&2 echo 'waitling till scheduler launched...')
 sleep 15
@@ -35,7 +35,10 @@ sleep 15
 for worker in $worker_nodes;
 do
     (>&2 echo "launching worker on ${worker}")
-    (>&2 ssh $worker $worker_launcher "${PATH}" "$(pwd)/debug" "${scheduler}") &
+    (>&2 ssh $worker $worker_launcher "${PATH}" \
+					"$(pwd)/debug" \
+					"${scheduler}" \
+					"${VSC_SCRATCH}") &
 done
 
 (>&2 echo 'waiting for workers to start and connect')
@@ -49,5 +52,5 @@ fi
 
 (>&2 echo 'starting computation')
 #Execute and time the graph building script, use SCRATCH partition as script argument
-time python ./network_graph_build.py $VSC_SCRATCH/data \
+time python ./network_graph_build_no_dem.py $VSC_SCRATCH/data \
 					--scheduler ${scheduler}

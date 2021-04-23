@@ -21,23 +21,24 @@ def get_neighbors(index, row):
     return [int(i) for i in index.intersection(wkb.loads(row.bbox).bounds) if int(i) != row.Index]
 
 
-def find_intersections(neighbors, row):
+def find_intersections(is_neighbors, neighbors, row):
     intersections = [] # Container for street intersections    
     nodes = [] # Arrays of tuples for NetworkX MultiDiGraph
     a = wkb.loads(row.geometry)
     road = a.coords[:]
     
-    for entry in neighbors.itertuples():
-        b = wkb.loads(entry.geometry)
-        if not (entry.bridge or entry.tunnel) and a.intersects(b): # Check if road with 'fid' osm_id actually intersects road 'x'
-            pts = a.intersection(b)
-            if pts.type == 'MultiPoint':
-                (nodes.append((pt.coords[:][0], {'junction':[row.Index, entry.Index]})) for pt in pts)
-                (intersections.append(pt) for pt in pts if pt.coords[:][0] != road[0] and pt.coords[:][0] != road[-1] and (pt.coords[:][0] not in intersections))
-            elif pts.type == 'Point':
-                nodes.append((pts.coords[:][0], {'junction':[row.Index, entry.Index]}))
-                if pts.coords[:][0] != road[0] and pts.coords[:][0] != road[-1] and (pts.coords[:][0] not in intersections):
-                    intersections.append(pts)
+    if is_neighbors:
+        for entry in neighbors.itertuples():
+            b = wkb.loads(entry.geometry)
+            if not (entry.bridge or entry.tunnel) and a.intersects(b): # Check if road with 'fid' osm_id actually intersects road 'x'
+                pts = a.intersection(b)
+                if pts.type == 'MultiPoint':
+                    (nodes.append((pt.coords[:][0], {'junction':[row.Index, entry.Index]})) for pt in pts)
+                    (intersections.append(pt) for pt in pts if pt.coords[:][0] != road[0] and pt.coords[:][0] != road[-1] and (pt.coords[:][0] not in intersections))
+                elif pts.type == 'Point':
+                    nodes.append((pts.coords[:][0], {'junction':[row.Index, entry.Index]}))
+                    if pts.coords[:][0] != road[0] and pts.coords[:][0] != road[-1] and (pts.coords[:][0] not in intersections):
+                        intersections.append(pts)
     
     [nodes.append((pt, {'junction':[row.Index]})) for pt in [road[0], road[-1]] if not nodes or pt not in tuple(zip(*nodes))[0]]
 
@@ -146,26 +147,24 @@ def compute_edges(intersections, nodes, road_elevations, row):
 
 G = nx.MultiDiGraph()
 i=0
-fids = []
+neighbors = None
 
 # Non-parallelized find_intersections
-for row in df.loc[4217292:4331539].itertuples():
+for row in df.loc[4217292:8578611].itertuples(): # 2'500 roads
     i+=1
     print(f'{i}: {row.Index}')
 
+    is_neighbors = False
     # Assumption that bridges and tunnels do not have intersections
     if not (row.bridge or row.tunnel): 
         # Retreive from R-tree osm_id's of roads whose bounding box overlaps this road's
         fids = get_neighbors(index, row)
-    else:
-        # If bridge or tunnel, only intersects others at start/end of way
-        fids = []
-
-    # Retreive those roads from the dataset by indexing
-    neighbors = df.loc[fids].compute()
+        # Retreive those roads from the dataset by indexing
+        neighbors = df.loc[fids].compute()
+        is_neighbors = True
         
     # Build up list of Graph nodes and list of intersections
-    (nodes, intersections) = find_intersections(neighbors, row)
+    (nodes, intersections) = find_intersections(is_neighbors, neighbors, row)
 
     # Retrieves elevation data for all road points and graph nodes
     (nodes, road_elevations) = get_elevation(nodes, wkb.loads(row.geometry).coords[:], dem)

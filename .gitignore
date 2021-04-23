@@ -10,6 +10,7 @@ presentations
 data/*
 dask-worker-space
 .ipynb_checkpoints
+.vscode
 
 # Except R-tree index files
 !data/roads.*

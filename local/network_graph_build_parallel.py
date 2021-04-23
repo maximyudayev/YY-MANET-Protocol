@@ -1,16 +1,18 @@
-#!/usr/bin/env python
-
-from argparse import ArgumentParser
-from distributed import Client, wait
+from dask.distributed import Client, wait
 import dask.dataframe as dd
-import xarray as xr
+import os
 from shapely.geometry import LineString, Polygon, Point, box
 from shapely import wkb
 import rtree
-import pyarrow as pa
-import sys
-import os
+import xarray as xr
 import pandas as pd
+import pyarrow as pa
+
+index_url = './../data/roads'
+df_url = './../data/osm_roads/roads.parquet'
+dem_url = './../data/elevation/mergedReprojDEM.tif'
+
+client = Client('192.168.0.134:8786')
 
 
 def get_neighbors(index, row):
@@ -199,63 +201,47 @@ def write(df, fn, schema):
     df.to_parquet(fn, engine='pyarrow', schema=schema)
     return
 
+schema = pa.schema([
+    ('osm_id', pa.int64()),
+    ('code', pa.int64()),
+    ('fclass', pa.string()),
+    ('road_name', pa.string()),
+    ('ref', pa.string()),
+    ('oneway', pa.bool_()),
+    ('maxspeed', pa.int64()),
+    ('layer', pa.int64()),
+    ('bridge', pa.bool_()),
+    ('tunnel', pa.bool_()),
+    ('geometry', pa.binary()),
+    ('bbox', pa.binary()),
+    ('nodes', pa.list_(
+        pa.struct([
+            ('0', pa.list_(pa.float64(), 2)),
+            ('1', pa.struct([
+                ('junction', pa.list_(pa.int64())),
+                ('altitude', pa.int64()),
+            ]))
+        ])
+    )),
+    ('edges', pa.list_(
+        pa.struct([
+            ('0', pa.list_(pa.float64(), 2)),
+            ('1', pa.list_(pa.float64(), 2)),
+            ('2', pa.struct([
+                ('length', pa.float64()),
+                ('weight', pa.float64()),
+                ('flatness', pa.float64()),
+            ]))
+        ])
+    ))
+])
 
-if __name__ == '__main__':
-    arg_parser = ArgumentParser(description='construct road network weighted Graph '
-                                            'from the distributed Dask Dataframe and '
-					    'XArray Digital Elevation Model')
-    arg_parser.add_argument('dir', help='scratch directory with data files')
-    arg_parser.add_argument('--scheduler', help='scheduler host:port')
-    options = arg_parser.parse_args()
-    
-    client = Client(str(options.scheduler))
-    print('Client: {0}'.format(str(client)), flush=True, file=sys.stderr)
-    
-    index_url = '{0}/roads'.format(options.dir)
-    df_url = '{0}/osm_roads/roads.parquet'.format(options.dir)
-    dem_url = '{0}/elevation/mergedReprojDEM.tif'.format(options.dir)
-    in_path = '{0}/osm_roads/roads_partition.parquet/'.format(options.dir)
-    out_path = '{0}/osm_roads/roads_intersected.parquet/'.format(options.dir)
+in_path = './../data/osm_roads/roads_partition.parquet/'
+out_path = './../data/osm_roads/roads_intersected.parquet/'
+futures = []
+for fn in os.listdir(in_path)[0:4]:
+    a = client.submit(process, in_path + fn, df_url, index_url)
+    b = client.submit(write, a, out_path + fn, schema)
+    futures.append(b)
 
-    schema = pa.schema([
-        ('osm_id', pa.int64()),
-        ('code', pa.int64()),
-        ('fclass', pa.string()),
-        ('road_name', pa.string()),
-        ('ref', pa.string()),
-        ('oneway', pa.bool_()),
-        ('maxspeed', pa.int64()),
-        ('layer', pa.int64()),
-        ('bridge', pa.bool_()),
-        ('tunnel', pa.bool_()),
-        ('geometry', pa.binary()),
-        ('bbox', pa.binary()),
-        ('nodes', pa.list_(
-            pa.struct([
-                ('0', pa.list_(pa.float64(), 2)),
-                ('1', pa.struct([
-                    ('junction', pa.list_(pa.int64())),
-                    ('altitude', pa.int64()),
-                ]))
-            ])
-        )),
-        ('edges', pa.list_(
-            pa.struct([
-                ('0', pa.list_(pa.float64(), 2)),
-                ('1', pa.list_(pa.float64(), 2)),
-                ('2', pa.struct([
-                    ('length', pa.float64()),
-                    ('weight', pa.float64()),
-                    ('flatness', pa.float64()),
-                ]))
-            ])
-        ))
-    ])
-
-    futures = []
-    for fn in os.listdir(in_path):
-        a = client.submit(process, in_path + fn, df_url, index_url)
-        b = client.submit(write, a, out_path + fn, schema)
-        futures.append(b)
-
-    wait(futures)
+wait(futures)
