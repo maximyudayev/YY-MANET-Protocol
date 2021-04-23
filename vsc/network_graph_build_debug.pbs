@@ -1,14 +1,15 @@
 #!/bin/bash -l
 #PBS -A default_project
-#PBS -l nodes=6:ppn=12
+#PBS -l nodes=1:ppn=12
 #PBS -l pmem=15gb
-#PBS -l walltime=05:00:00
+#PBS -l qos=debugging
+#PBS -l walltime=00:30:00
 #PBS -o debug/
 #PBS -e debug/
 #PBS -m bae
 #PBS -M maxim.yudayev@student.kuleuven.be
 
-#6 node, 12 processes, 5 hour non-interactive compute job with email notifications
+#1 node, 9 processes, 20 minute non-interactive sample compute job with email notifications
 
 #Change directory to location from which task was submitted to queue: $VSC_DATA/vsc
 cd $PBS_O_WORKDIR
@@ -17,7 +18,7 @@ module purge
 #Collect data from cluster manager about allocated nodes
 scheduler="$(hostname):8786"
 worker_nodes=$(uniq $PBS_NODEFILE)
-worker_launcher="$(pwd)/launch_worker.sh"
+worker_launcher="$(pwd)/launch_worker_debug.sh"
 
 #Start Dask scheduler
 (>&2 echo "launching scheduler: ${scheduler}")
@@ -49,5 +50,5 @@ fi
 
 (>&2 echo 'starting computation')
 #Execute and time the graph building script, use SCRATCH partition as script argument
-time python ./network_graph_build.py $VSC_SCRATCH/data \
+time python ./network_graph_build_bigmem.py $VSC_SCRATCH/data \
 					--scheduler ${scheduler}

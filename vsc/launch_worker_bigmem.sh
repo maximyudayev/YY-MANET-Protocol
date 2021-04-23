@@ -10,5 +10,5 @@ fi
 
 ulimit -c 0
 
-nohup dask-worker $3 --memory-limit 15GB --nprocs 12 --nthreads 1 --interface ib0 --local-directory $4 &> "$2/worker-$(hostname)-${PBS_JOBID}.log" &
+nohup dask-worker $3 --memory-limit 20GB --nprocs 36 --nthreads 1 --interface ib0 --local-directory $4 &> "$2/worker-$(hostname)-${PBS_JOBID}.log" &
 

@@ -8,4 +8,6 @@ then
     (>&2 echo '### [ERR]: conda environment not sourced correctly (scheduler)')
 fi
 
+ulimit -c 0
+
 nohup dask-scheduler &> "$2/scheduler-${PBS_JOBID}.log" &

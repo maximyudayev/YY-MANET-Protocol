@@ -55,7 +55,9 @@ def get_elevation(nodes, a, dem):
     for i in range(len(b)):
         # The second 'b' elements correspond to graph nodes
         nodes[i][1]['altitude'] = data[len(a)+i][len(a)+i]
+   
     del data
+   
     return nodes, road_elevations
 
 
