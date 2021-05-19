@@ -14,4 +14,4 @@ dask-worker-space
 vsc/debug
 
 # Except R-tree index files
-!data/roads.*
+#!data/roads.*

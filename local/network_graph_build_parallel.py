@@ -181,10 +181,10 @@ def foo(row, df, dem, index):
     return nodes, edges
 
 
-def process(fn, df_url, dem_url, index_url):
+def process(fn_in, fn_out, df_url, dem_url, index_url, schema):
     df = dd.read_parquet(df_url, engine='pyarrow')
     dem = xr.open_rasterio(dem_url, chunks={'band': 1, 'x': 3500, 'y': 4000})
-    d = pd.read_parquet(fn)
+    d = pd.read_parquet(fn_in)
     index = rtree.index.Rtree(index_url)
 
     d[['nodes', 'edges']] = d.apply(
@@ -193,12 +193,11 @@ def process(fn, df_url, dem_url, index_url):
         axis=1,
         result_type='expand')
 
-    return d
+    print('Writing processed data to '+fn_out)
+    d.to_parquet(fn_out, engine='pyarrow', schema=schema)
 
+    del df, dem, d, index
 
-def write(df, fn, schema):
-    print('Writing processed data to '+fn)
-    df.to_parquet(fn, engine='pyarrow', schema=schema)
     return
 
 schema = pa.schema([
@@ -239,9 +238,9 @@ schema = pa.schema([
 in_path = './../data/osm_roads/roads_partition.parquet/'
 out_path = './../data/osm_roads/roads_intersected.parquet/'
 futures = []
-for fn in os.listdir(in_path)[0:4]:
-    a = client.submit(process, in_path + fn, df_url, index_url)
-    b = client.submit(write, a, out_path + fn, schema)
-    futures.append(b)
+for fn in os.listdir(in_path):
+    if fn not in os.listdir(out_path):
+        future = client.submit(process, in_path + fn, out_path + fn, df_url, dem_url, index_url, schema)
+        futures.append(future)
 
 wait(futures)

@@ -11,7 +11,7 @@
 
 #1 node, 9 processes, 20 minute non-interactive sample compute job with email notifications
 
-#Change directory to location from which task was submitted to queue: $VSC_DATA/vsc
+#Change directory to location from which task was submitted to queue: $VSC_DATA/vsc/intersection_processing
 cd $PBS_O_WORKDIR
 module purge
 
