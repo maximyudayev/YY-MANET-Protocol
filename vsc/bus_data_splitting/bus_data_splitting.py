@@ -19,9 +19,9 @@ if __name__ == '__main__':
     in_path = '{0}/mobility/bus_data_clean.parquet'.format(options.dir)
     out_path = '{0}/mobility/bus_data_clean_split'.format(options.dir)
 
-    orders = '{0}/mobility/orders.csv'.format(options.dir)
+    orders = pd.read_csv('{0}/mobility/orders.csv'.format(options.dir))
     df = dd.read_parquet(in_path, engine='pyarrow')
 
-    for i in range(48, len(orders)):
+    for i in range(len(orders)):
         df_out = df[df.order == i].compute()
         df_out.to_parquet(f'{out_path}/{i}.parquet', engine='pyarrow')
