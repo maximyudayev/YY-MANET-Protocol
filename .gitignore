@@ -11,7 +11,7 @@ data/*
 dask-worker-space
 .ipynb_checkpoints
 .vscode
-vsc/debug
+vsc/**/debug
 
 # Except R-tree index files
 #!data/roads.*
