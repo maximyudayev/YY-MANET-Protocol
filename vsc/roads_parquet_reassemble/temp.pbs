@@ -1,0 +1,52 @@
+#!/bin/bash -l
+#PBS -A default_project
+#PBS -l nodes=1:ppn=36
+#PBS -l mem=180gb
+#PBS -l qos=debugging
+#PBS -l walltime=30:00
+#PBS -o debug/
+#PBS -e debug/
+#PBS -m bae
+#PBS -M maxim.yudayev@student.kuleuven.be
+
+#Change directory to location from which task was submitted to queue: $VSC_DATA/vsc/bus_data_splitting
+cd $PBS_O_WORKDIR
+module purge
+
+#Collect data from cluster manager about allocated nodes
+scheduler="$(hostname):8786"
+worker_nodes=$(uniq $PBS_NODEFILE)
+worker_launcher="$(pwd)/launch_worker.sh"
+
+#Start Dask scheduler
+(>&2 echo "launching scheduler: ${scheduler}")
+./launch_scheduler.sh "${PATH}" \
+			"$(pwd)/debug"
+
+(>&2 echo 'waitling till scheduler launched...')
+sleep 15
+
+#Start Dask workers on nodes
+(>&2 echo 'starting workers...' )
+for worker in $worker_nodes;
+do
+    (>&2 echo "launching worker on ${worker}")
+    (>&2 ssh $worker $worker_launcher "${PATH}" \
+					"$(pwd)/debug" \
+					"${scheduler}" \
+					"${VSC_SCRATCH}") &
+done
+
+(>&2 echo 'waiting for workers to start and connect')
+sleep 15
+
+source activate master_thesis 2> /dev/null
+if [ $? -ne 0 ]
+then
+    (>&2 echo '### [ERR]: conda environment not sourced successfully (.pbs)')
+fi
+
+(>&2 echo 'starting computation')
+#Execute and time the graph building script, use SCRATCH partition as script argument
+time python ./temp.py $VSC_SCRATCH/data \
+					--scheduler ${scheduler}
