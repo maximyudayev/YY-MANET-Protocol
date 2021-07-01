@@ -3,6 +3,7 @@
 import os
 import pandas as pd
 import networkx as nx
+import json
 from argparse import ArgumentParser
 
 if __name__ == '__main__':
@@ -11,7 +12,7 @@ if __name__ == '__main__':
     options = arg_parser.parse_args()
 
     in_path = '{0}/osm_roads/roads_intersected.parquet/'.format(options.dir)
-    out_path = '{0}/osm_roads/roads.gpickle'.format(options.dir)
+    out_path = '{0}/osm_roads/roads.json'.format(options.dir)
 
     # Reduce futures to a NetworkX Graph as they arrive back with results
     G = nx.MultiDiGraph()
@@ -34,4 +35,11 @@ if __name__ == '__main__':
                     else:
                         G.add_nodes_from([(tuple(node['0']), {'altitude':node['1']['altitude'], 'junction':list(node['1']['junction'])})])
 
-    nx.write_gpickle(G, out_path)
+    # Save the Graph as JSON data
+    data = nx.node_link_data(G)
+
+    for i in range(len(data['nodes'])):
+        data['nodes'][i]['junction'] = [int(junc) for junc in data['nodes'][i]['junction']]
+
+    with open(out_path,'w') as file:
+        json.dump(data,file)

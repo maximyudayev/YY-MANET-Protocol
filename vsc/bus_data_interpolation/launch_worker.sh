@@ -11,4 +11,4 @@ fi
 ulimit -c 0
 
 # Run workers as threads to share 'heavy' datasets in shared memory
-nohup dask-worker $3 --memory-limit 5GB --nthreads 36 --interface ib0 --local-directory $4 &> "$2/worker-$(hostname)-${PBS_JOBID}.log" &
+nohup dask-worker $3 --memory-limit 20GB --nprocs 36 --nthreads 1 --interface ib0 --local-directory $4 &> "$2/worker-$(hostname)-${PBS_JOBID}.log" &

@@ -1,9 +1,9 @@
 #!/bin/bash -l
 #PBS -A default_project
-#PBS -l nodes=1:ppn=36
-#PBS -l mem=180gb
-#PBS -l qos=debugging
-#PBS -l walltime=30:00
+#PBS -l nodes=4:ppn=36
+#PBS -l pmem=20gb
+#PBS -l partition=bigmem
+#PBS -l walltime=03:00:00
 #PBS -o debug/
 #PBS -e debug/
 #PBS -m bae
@@ -49,4 +49,4 @@ fi
 (>&2 echo 'starting computation')
 #Execute and time the graph building script, use SCRATCH partition as script argument
 time python ./bus_data_interpolation.py $VSC_SCRATCH/data \
-					--scheduler ${scheduler}
+                                        --scheduler ${scheduler}
